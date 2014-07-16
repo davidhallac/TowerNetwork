@@ -1,0 +1,15 @@
+#
+# Makefile for non-Microsoft compilers
+#
+
+all: graphicalLasso
+
+graphicalLasso: graphicalLasso.cpp $(DEPH) $(DEPCPP) $(EXSNAP)/Snap.o
+		$(CC) $(CXXFLAGS) -o graphicalLasso graphicalLasso.cpp $(DEPCPP) $(EXSNAP)/Snap.o -I$(EXSNAP) -I$(EXSNAPADV) -I$(EXGLIB) -I$(EXSNAPEXP) $(LDFLAGS) $(LIBS)
+
+$(EXSNAP)/Snap.o: 
+		make -C $(EXSNAP)
+
+clean:
+		rm -f *.o analyze process analyze.exe process.exe *.user
+		rm -rf Debug Release

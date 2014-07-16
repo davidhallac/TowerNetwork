@@ -30,12 +30,16 @@ int main(int argc, const char * argv[])
 	PhoneLoad.Load(fin);
 	THash<TStr, TFlt> towerLoc; //Map ID --> Lat + 33*Long (unique hash)
 	THash<TFlt, TInt> towerNumber; //Helper that maps towers to an in-order ID (0 to ~1100)
-	THash<TVec<TFlt>, TInt> locToTower;
+	THash<TVec<TFlt>, TStr> locToTower;
 	TSsParser Ss("LocationTowers.csv", ssfCommaSep);
 	while(Ss.Next())
 	{
 		//cout << Ss.GetFld(0) << Ss.GetFld(1) << Ss.GetFld(2) << "\n";
 		towerLoc.AddDat(Ss.GetFld(0), 100000*(-7*(Ss.GetFlt(1)-13) + 29*(Ss.GetFlt(2)-40)));
+		TVec<TFlt> temp;
+		temp.Add(Ss.GetFlt(1));
+		temp.Add(Ss.GetFlt(2));
+		locToTower.AddDat(temp, Ss.GetFld(0));
 	}
 
 	TPt <TNodeNet<TInt> > Net = TNodeNet<TInt>::New();

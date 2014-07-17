@@ -56,7 +56,7 @@ int main(int argc, const char * argv[])
 		if(!G->IsNode(tow))
 		{
 			G->AddNode(tow);
-			towerNumber.AddDat(tow, towerCount);
+			towerNumber.AddDat(TFlt(int(tow)), towerCount);
 			towerCount++;
 		}
 		NI.Next();
@@ -152,7 +152,6 @@ int main(int argc, const char * argv[])
 		//Find sample covariance between two vectors
 		TInt id1 = towerNumber.GetDat(EI.GetSrcNId());
 		TInt id2 = towerNumber.GetDat(EI.GetDstNId());
-
 		TFlt mean1 = 0;
 		TFlt mean2 = 0;
 		for (int i = 0; i < height; ++i)
@@ -175,7 +174,7 @@ int main(int argc, const char * argv[])
 		var1 = var1/(height - 1);
 		var2 = var2/(height - 1);
 		sampleCov = sampleCov / (height - 1);
-		cout << var1 << ", " << var2 << ", " << sampleCov << ", " << mean1 << ", " << mean2 << "\n";
+		//cout << var1 << ", " << var2 << ", " << sampleCov << ", " << mean1 << ", " << mean2 << ", " << id1 << ", " << id2 << "\n";
 		sampleCov = sampleCov / (var1*var2);
 
 		TFlt weight = max(sampleCov, TFlt(0));

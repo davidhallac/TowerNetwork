@@ -128,22 +128,22 @@ int main(int argc, const char * argv[])
 	}
 
 	int height = 96;
-	// double adjA [height][numtowers];
-	// memset( adjA, 0, height*numtowers*sizeof(int) );
-	// for (int i = 0; i < height; ++i)
-	// {
-	// 	double sum = 0.01;
-	// 	for (int j = 0; j < numtowers; ++j)
-	// 	{
-	// 		sum = sum + a[i][j];
-	// 	}
-	// 	for (int j = 0; j < numtowers; j++)
-	// 	{
-	// 		adjA[i][j] = (a[i][j]*100 * numtowers)/sum;
-	// 		//std::cout << adjA[i][j] << ' ';				
-	// 	}
-	// 	//std::cout << std::endl;
-	// }
+	double adjA [height][numtowers];
+	memset( adjA, 0, height*numtowers*sizeof(int) );
+	for (int i = 0; i < height; ++i)
+	{
+		double sum = 0.01;
+		for (int j = 0; j < numtowers; ++j)
+		{
+			sum = sum + a[i][j];
+		}
+		for (int j = 0; j < numtowers; j++)
+		{
+			adjA[i][j] = (a[i][j]*100 * numtowers)/sum;
+			std::cout << a[i][j] << ' ';				
+		}
+		std::cout << std::endl;
+	}
 
 	//Set each edge weight to a covariance matrix
 	THash< TVec< TInt>, TFlt> edgeWeights;

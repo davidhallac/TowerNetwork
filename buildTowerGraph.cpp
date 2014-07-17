@@ -32,7 +32,7 @@ int main(int argc, const char * argv[])
 	//Get Tower Information from CSV File
 	THash<TStr, TFlt> towerLoc; //Map ID --> Lat + 33*Long (unique hash)
 	THash<TFlt, TInt> towerNumber; //Helper that maps towers to an in-order ID (0 to ~1100)
-	THash<TFlt, TVec<TFlt>> locToTower;
+	THash<TFlt, TVec<TFlt> > locToTower;
 	TSsParser Ss("LocationTowers.csv", ssfCommaSep);
 	while(Ss.Next())
 	{

@@ -24,28 +24,30 @@ int main(int argc, const char * argv[])
 		cout << "Not enough arguments!" << "\n";
 		return 0;
 	}
-
+	//Load Phone Calls
 	TVec<TPhoneCall> PhoneLoad;
 	TFIn fin(argv[1]);
 	PhoneLoad.Load(fin);
+
+	//Get Tower Information from CSV File
 	THash<TStr, TFlt> towerLoc; //Map ID --> Lat + 33*Long (unique hash)
 	THash<TFlt, TInt> towerNumber; //Helper that maps towers to an in-order ID (0 to ~1100)
-	THash<TVec<TFlt>, TStr> locToTower;
+	THash<TFlt, TVec<TFlt>> locToTower;
 	TSsParser Ss("LocationTowers.csv", ssfCommaSep);
 	while(Ss.Next())
 	{
-		//cout << Ss.GetFld(0) << Ss.GetFld(1) << Ss.GetFld(2) << "\n";
-		towerLoc.AddDat(Ss.GetFld(0), 100000*(-7*(Ss.GetFlt(1)-13) + 29*(Ss.GetFlt(2)-40)));
+		TFlt mapping = 100000*(-7*(Ss.GetFlt(1)-13) + 29*(Ss.GetFlt(2)-40));
+		towerLoc.AddDat(Ss.GetFld(0), mapping);
 		TVec<TFlt> temp;
 		temp.Add(Ss.GetFlt(1));
 		temp.Add(Ss.GetFlt(2));
-		locToTower.AddDat(temp, Ss.GetFld(0));
+		locToTower.AddDat(mapping, temp);
 	}
 
-	TPt <TNodeNet<TInt> > Net = TNodeNet<TInt>::New();
+	//Add all nodes (towers) to graph
 	PUNGraph G = TUNGraph::New();
-	THash<TStr, TFlt>::TIter NI = towerLoc.BegI();
 	towerLoc.SortByDat(); //Sorts towers
+	THash<TStr, TFlt>::TIter NI = towerLoc.BegI();
 	TInt towerCount = 0;
 	while(!NI.IsEnd())
 	{
@@ -56,9 +58,30 @@ int main(int argc, const char * argv[])
 			towerNumber.AddDat(tow, towerCount);
 			towerCount++;
 		}
-		
 		NI.Next();
 	}
+
+	//For each node, find closest towers and add an edge:
+	for (TUNGraph::TNodeI NI = G->BegNI(); NI < G->EndNI(); NI++) 
+	{
+		THash<TFlt, TFlt> distances;
+		for (TUNGraph::TNodeI NI2 = G->BegNI(); NI2 < G->EndNI(); NI2++) 
+		{
+			if(NI.GetId() != NI2.GetId())
+			{
+				//TODO: Find distances
+				TFlt dist = 0;
+
+				distances.AddDat(dist, NI2.GetId());
+			}
+			distances.SortByKey();
+			//TODO: Add 5 closest neighbors
+			THash<TFlt, TFlt>::TIter fiveClosest = distances.BegI();
+			
+		}
+
+		//printf("node id %d with degree %d\n", NI.GetId(), NI.GetDeg());
+  	}
 
 	int numtowers = towerCount;
 	for (int e = 0; e < 10000; e++) {

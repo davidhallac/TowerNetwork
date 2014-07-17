@@ -15,6 +15,7 @@
 #include "../../snap-core/Snap.h"
 #include "process.h"
 #include <math.h>
+#define pi 3.14159265358979323846
 using namespace std;
 
 int main(int argc, const char * argv[])
@@ -41,7 +42,7 @@ int main(int argc, const char * argv[])
 		TVec<TFlt> temp;
 		temp.Add(Ss.GetFlt(1));
 		temp.Add(Ss.GetFlt(2));
-		locToTower.AddDat(mapping, temp);
+		locToTower.AddDat(TFlt(int(mapping)), temp);
 	}
 
 	//Add all nodes (towers) to graph
@@ -65,32 +66,40 @@ int main(int argc, const char * argv[])
 	for (TUNGraph::TNodeI NI = G->BegNI(); NI < G->EndNI(); NI++) 
 	{
 		THash<TFlt, TFlt> distances;
+		TFlt lat1 = locToTower.GetDat(NI.GetId())[0];
+		TFlt lon1 = locToTower.GetDat(NI.GetId())[1];		
 		for (TUNGraph::TNodeI NI2 = G->BegNI(); NI2 < G->EndNI(); NI2++) 
 		{
 			if(NI.GetId() != NI2.GetId())
 			{
-				//TODO: Find distances
-				TFlt dist = 0;
-
+				//Find distances
+				TVec<TFlt> temperature = locToTower.GetDat(5925929);
+				TFlt lat2 = locToTower.GetDat(NI2.GetId())[0];
+				TFlt lon2 = locToTower.GetDat(NI2.GetId())[1];	
+				TFlt theta = lon1 - lon2;
+				TFlt dist = sin(lat1*pi/180)*sin(lat2*pi/180) + cos(lat1*pi/180)*cos(lat2*pi/180)*cos(theta*pi/180);
+				dist = acos(dist);
+				dist = dist*180/pi;
+				dist = dist*60*1.1515;
 				distances.AddDat(dist, NI2.GetId());
 			}
-			distances.SortByKey();
-			//TODO: Add 5 closest neighbors
-			THash<TFlt, TFlt>::TIter fiveClosest = distances.BegI();
-			
 		}
 
+		distances.SortByKey();	
+		THash<TFlt, TFlt>::TIter closestNeighs = distances.BegI();
+		int numneighs = 0;
+		while(numneighs < 5)
+		{
+			//cout << NI.GetId() << ", " << closestNeighs.GetKey() << ", " << closestNeighs.GetDat() << "\n";
+			G->AddEdge(NI.GetId(), closestNeighs.GetDat());
+			numneighs++;
+			closestNeighs.Next();
+		}
+		IAssert(G->IsOk());
 		//printf("node id %d with degree %d\n", NI.GetId(), NI.GetDeg());
   	}
 
 	int numtowers = towerCount;
-	for (int e = 0; e < 10000; e++) {
-    const int NId1 = G->GetRndNId();
-    const int NId2 = G->GetRndNId();
-    G->AddEdge(NId1, NId2);
-	}
-	IAssert(G->IsOk());
-
 	int a [96][numtowers];
 	memset( a, 0, 96*numtowers*sizeof(int) );
 	for (int i=0; i < PhoneLoad.Len(); i++) 

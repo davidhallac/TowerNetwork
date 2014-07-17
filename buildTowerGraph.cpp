@@ -99,6 +99,8 @@ int main(int argc, const char * argv[])
 		//printf("node id %d with degree %d\n", NI.GetId(), NI.GetDeg());
   	}
 
+
+  	//Now, build matrix of phone calls
 	int numtowers = towerCount;
 	int a [96][numtowers];
 	memset( a, 0, 96*numtowers*sizeof(int) );
@@ -125,23 +127,55 @@ int main(int argc, const char * argv[])
 		}
 	}
 
-	double adjA [96][numtowers];
-	memset( adjA, 0, 96*numtowers*sizeof(int) );
 	int height = 96;
-	for (int i = 0; i < height; ++i)
+	// double adjA [height][numtowers];
+	// memset( adjA, 0, height*numtowers*sizeof(int) );
+	// for (int i = 0; i < height; ++i)
+	// {
+	// 	double sum = 0.01;
+	// 	for (int j = 0; j < numtowers; ++j)
+	// 	{
+	// 		sum = sum + a[i][j];
+	// 	}
+	// 	for (int j = 0; j < numtowers; j++)
+	// 	{
+	// 		adjA[i][j] = (a[i][j]*100 * numtowers)/sum;
+	// 		//std::cout << adjA[i][j] << ' ';				
+	// 	}
+	// 	//std::cout << std::endl;
+	// }
+
+	//Set each edge weight to a covariance matrix
+	THash< TVec< TInt>, TFlt> edgeWeights;
+	for (TUNGraph::TEdgeI EI = G->BegEI(); EI < G->EndEI(); EI++) 
 	{
-		double sum = 0.01;
-		for (int j = 0; j < numtowers; ++j)
+		//Find sample covariance between two vectors
+		TInt id1 = towerNumber.GetDat(EI.GetSrcNId());
+		TInt id2 = towerNumber.GetDat(EI.GetDstNId());
+
+		TFlt mean1 = 0;
+		TFlt mean2 = 0;
+		for (int i = 0; i < height; ++i)
 		{
-			sum = sum + a[i][j];
+			mean1 = mean1 + a[i][id1];
+			mean2 = mean2 + a[i][id2];
 		}
-		for (int j = 0; j < numtowers; j++)
+		mean1 = mean1/height;
+		mean2 = mean2/height;
+
+		TFlt sampleCov = 0;
+		for (int i = 0; i < height; ++i)
 		{
-			adjA[i][j] = (a[i][j]*100 * numtowers)/sum;
-			//std::cout << adjA[i][j] << ' ';				
+			sampleCov += (a[i][id1] - mean1)*(a[i][id2] - mean2);
 		}
-		//std::cout << std::endl;
+		sampleCov = sampleCov / (height - 1);
+
+		TFlt weight = max(sampleCov, TFlt(0));
+
+		printf("edge (%d, %d) with edge weight %f. Cov %f\n", EI.GetSrcNId(), EI.GetDstNId(), weight, sampleCov);
 	}
+
+
 
 }
 

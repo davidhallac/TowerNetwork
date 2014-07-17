@@ -37,12 +37,12 @@ int main(int argc, const char * argv[])
 	TSsParser Ss("LocationTowers.csv", ssfCommaSep);
 	while(Ss.Next())
 	{
-		TFlt mapping = 100000*(-7*(Ss.GetFlt(1)-13) + 29*(Ss.GetFlt(2)-40));
+		TFlt mapping = TFlt(int(100000*(-7*(Ss.GetFlt(1)-13) + 29*(Ss.GetFlt(2)-40))));
 		towerLoc.AddDat(Ss.GetFld(0), mapping);
 		TVec<TFlt> temp;
 		temp.Add(Ss.GetFlt(1));
 		temp.Add(Ss.GetFlt(2));
-		locToTower.AddDat(TFlt(int(mapping)), temp);
+		locToTower.AddDat(mapping, temp);
 	}
 
 	//Add all nodes (towers) to graph
@@ -56,7 +56,7 @@ int main(int argc, const char * argv[])
 		if(!G->IsNode(tow))
 		{
 			G->AddNode(tow);
-			towerNumber.AddDat(TFlt(int(tow)), towerCount);
+			towerNumber.AddDat(tow, towerCount);
 			towerCount++;
 		}
 		NI.Next();
@@ -73,7 +73,6 @@ int main(int argc, const char * argv[])
 			if(NI.GetId() != NI2.GetId())
 			{
 				//Find distances
-				TVec<TFlt> temperature = locToTower.GetDat(5925929);
 				TFlt lat2 = locToTower.GetDat(NI2.GetId())[0];
 				TFlt lon2 = locToTower.GetDat(NI2.GetId())[1];	
 				TFlt theta = lon1 - lon2;
@@ -129,7 +128,7 @@ int main(int argc, const char * argv[])
 
 	int height = 96;
 	double adjA [height][numtowers];
-	memset( adjA, 0, height*numtowers*sizeof(int) );
+	memset( adjA, 0, height*numtowers*sizeof(double) );
 	for (int i = 0; i < height; ++i)
 	{
 		double sum = 0.01;
@@ -140,9 +139,9 @@ int main(int argc, const char * argv[])
 		for (int j = 0; j < numtowers; j++)
 		{
 			adjA[i][j] = (a[i][j]*100 * numtowers)/sum;
-			std::cout << a[i][j] << ' ';				
+			//std::cout << a[i][j] << ' ';				
 		}
-		std::cout << std::endl;
+		//std::cout << std::endl;
 	}
 
 	//Set each edge weight to a covariance matrix
@@ -174,7 +173,7 @@ int main(int argc, const char * argv[])
 		var1 = var1/(height - 1);
 		var2 = var2/(height - 1);
 		sampleCov = sampleCov / (height - 1);
-		cout << var1 << ", " << var2 << ", " << sampleCov << ", " << mean1 << ", " << mean2 << ", " << id1 << ", " << id2 << "\n";
+		//cout << var1 << ", " << var2 << ", " << sampleCov << ", " << mean1 << ", " << mean2 << ", " << id1 << ", " << id2 << "\n";
 		sampleCov = sampleCov / (var1*var2+0.001);
 
 		TFlt weight = max(sampleCov, TFlt(0));
@@ -183,6 +182,59 @@ int main(int argc, const char * argv[])
 	}
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	// int adjA2 [numtowers];
+	// memset( adjA2, 0, numtowers*sizeof(int) );
+	// for (int i = 0; i < height; ++i)
+	// {
+	// 	for (int j = 0; j < numtowers; ++j)
+	// 	{
+	// 		adjA2[j] += a[i][j];
+	// 	}
+	// }
+
+	// for (int j = 0; j < numtowers; ++j)
+	// {
+	// 	std::cout << adjA2[j] << ' ';	
+	// }
+	// cout << "\n";
+
+	// cout << PhoneLoad.Len() << "\n";
+	// for (int i=0; i < PhoneLoad.Len(); i++) 
+	// {
+	// 		TFlt sourceTow = towerLoc.GetDat(PhoneLoad[i].getLocSrc().CStr()); 
+	// 		TFlt destTow = towerLoc.GetDat(PhoneLoad[i].getLocDest().CStr());		
+	// 		if (sourceTow > 1 || sourceTow < -1)
+	// 		{
+	// 		//	cout << PhoneLoad[i].getLocSrc().CStr() << ", " << towerLoc.GetDat(PhoneLoad[i].getLocSrc()) << ", " << towerNumber.GetDat(towerLoc.GetDat(PhoneLoad[i].getLocSrc())) <<  "\n";
+	// 		}
+	// 		if (destTow > 1 || destTow < -1)
+	// 		{
+	// 			TFlt temperature = towerLoc.GetDat(PhoneLoad[i].getLocDest());
+	// 			cout << PhoneLoad[i].getLocDest().CStr() << ", " << temperature << ", " << towerNumber.GetDat(temperature) <<  "\n";
+	// 		}
+	// }
+
+	// cout << adjA2[0] << "\n";
+	// THash<TFlt, TInt>::TIter NI3 = towerNumber.BegI();
+	// while(!NI3.IsEnd())
+	// {
+	// 	//cout << NI3.GetKey() << ", " << NI3.GetDat() << "\n";
+	// 	NI3.Next();
+	// }
 
 }
 

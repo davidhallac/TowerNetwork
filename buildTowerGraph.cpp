@@ -175,7 +175,7 @@ int main(int argc, const char * argv[])
 		var1 = var1/(height - 1);
 		var2 = var2/(height - 1);
 		sampleCov = sampleCov / (height - 1);
-		cout << var1 << ", " << var2 << ", " << sampleCov << "\n";
+		cout << var1 << ", " << var2 << ", " << sampleCov << ", " << mean1 << ", " << mean2 "\n";
 		sampleCov = sampleCov / (var1*var2);
 
 		TFlt weight = max(sampleCov, TFlt(0));

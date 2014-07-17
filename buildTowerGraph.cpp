@@ -164,11 +164,19 @@ int main(int argc, const char * argv[])
 		mean2 = mean2/height;
 
 		TFlt sampleCov = 0;
+		TFlt var1 = 0;
+		TFlt var2 = 0;
 		for (int i = 0; i < height; ++i)
 		{
+			var1 += (a[i][id1] - mean1)*(a[i][id1] - mean1);
+			var2 += (a[i][id2] - mean2)*(a[i][id2] - mean2);
 			sampleCov += (a[i][id1] - mean1)*(a[i][id2] - mean2);
 		}
+		var1 = var1/(height - 1);
+		var2 = var2/(height - 1);
 		sampleCov = sampleCov / (height - 1);
+		cout << var1 << ", " << var2 << ", " << sampleCov << "\n";
+		sampleCov = sampleCov / (var1*var2);
 
 		TFlt weight = max(sampleCov, TFlt(0));
 

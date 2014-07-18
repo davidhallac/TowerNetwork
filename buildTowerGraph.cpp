@@ -210,10 +210,9 @@ int main(int argc, const char * argv[])
 	//Remove nodes with no edges
 	for (TUNGraph::TNodeI NI = G->BegNI(); NI < G->EndNI(); NI++) 
 	{
-		printf("node id %d with degree %d\n", NI.GetId(), NI.GetDeg());
+		//printf("node id %d with degree %d\n", NI.GetId(), NI.GetDeg());
 	}
 
-	cout << towerCount << "\n";
 
 
 	int countt = 0;
@@ -222,8 +221,10 @@ int main(int argc, const char * argv[])
 		countt++;
 		//printf("edge (%d, %d) \n", EI.GetSrcNId(), EI.GetDstNId());
 	}
-	cout << countt << "\n";
 
+	cout << countt << "\n";
+	cout << TSnap::GetTriads(G) << "\n";
+	cout << TSnap::GetClustCf(G) << "\n";
 
 
 

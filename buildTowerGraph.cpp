@@ -86,7 +86,7 @@ int main(int argc, const char * argv[])
 		distances.SortByKey();	
 		THash<TFlt, TFlt>::TIter closestNeighs = distances.BegI();
 		int numneighs = 0;
-		while(numneighs < 5)
+		while(numneighs < 10)
 		{
 			if(!G->IsEdge(NI.GetId(), closestNeighs.GetDat()))
 			{

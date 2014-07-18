@@ -145,7 +145,7 @@ int main(int argc, const char * argv[])
 	}
 
 	//Set each edge weight to a covariance matrix
-	THash< TUInt, TFlt> edgeWeights; //edge1 + 10*edge2
+	THash< TPair< TInt, TInt>,  TFlt> edgeWeights;
 	for (TUNGraph::TEdgeI EI = G->BegEI(); EI < G->EndEI(); EI++) 
 	{
 		//Find sample covariance between two vectors
@@ -175,13 +175,16 @@ int main(int argc, const char * argv[])
 		sampleCov = sampleCov / (height - 1);
 		sampleCov = sampleCov / (var1*var2+0.001);
 		TFlt weight = max(sampleCov, TFlt(0));
-		TUInt temp = EI.GetSrcNId() + 10*EI.GetDstNId();
+		//TUInt temp = EI.GetSrcNId() + 10*EI.GetDstNId();
+		TPair< TInt, TInt> temp;
+		temp.Val1 = EI.GetSrcNId();
+		temp.Val2 = EI.GetDstNId();
 		edgeWeights.AddDat(temp, weight);
 		//cout << temp << ", " << weight << "\n";
-		if(temp == 389246226)
-		{
-			cout << edgeWeights.GetDat(TUInt(389246226)) << "\n";
-		}
+		//if(temp == 389246226)
+		//{
+		//	cout << edgeWeights.GetDat(TUInt(389246226)) << "\n";
+		//}
 		//printf("edge (%d, %d) with edge weight %f. Cov %f\n", EI.GetSrcNId(), EI.GetDstNId(), weight, sampleCov);
 	}
 
@@ -193,7 +196,10 @@ int main(int argc, const char * argv[])
 		int tempCounter = 0;
 		for(int j = 0; j < temp; j++)
 		{
-			TUInt temp = min(NI.GetId(),NI.GetOutNId(tempCounter)) + 10*max(NI.GetId(), NI.GetOutNId(tempCounter));
+			TPair< TInt, TInt> temp;
+			temp.Val1 = min(NI.GetId(),NI.GetOutNId(tempCounter));
+			temp.Val2 = max(NI.GetId(), NI.GetOutNId(tempCounter));
+			//TUInt temp = min(NI.GetId(),NI.GetOutNId(tempCounter)) + 10*max(NI.GetId(), NI.GetOutNId(tempCounter));
 			TFlt weight = edgeWeights.GetDat(temp); //TODO: SOLVE THIS
 			//cout << temp << ", " << weight << "\n";
 			if(double(weight) <= 0.00001)
@@ -207,7 +213,7 @@ int main(int argc, const char * argv[])
 		}
 	}
 
-
+	//Remove nodes with no edges
 	for (TUNGraph::TNodeI NI = G->BegNI(); NI < G->EndNI(); NI++) 
 	{
 		printf("node id %d with degree %d\n", NI.GetId(), NI.GetDeg());

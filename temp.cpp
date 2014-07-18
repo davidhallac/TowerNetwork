@@ -31,30 +31,25 @@ int main(int argc, const char * argv[])
 	PhoneLoad.Load(fin);
 
 	//Get Tower Information from CSV File
-	//THash<TStr, TFlt> towerLoc; //Map ID --> Lat + 33*Long (unique hash)
-	//THash<TFlt, TInt> towerNumber; //Helper that maps towers to an in-order ID (0 to ~1100)
 	THash<TStr, TPair< TFlt, TFlt> > towerLoc;
 	THash<TPair< TFlt, TFlt>, TInt> towerNumber;
 	THash<TInt, TPair< TFlt, TFlt> > idToLoc;
-	//THash<TFlt, TPair< TFlt, TFlt> > locToTower;
 	TSsParser Ss("LocationTowers.csv", ssfCommaSep);
 	while(Ss.Next())
 	{
-		//TFlt mapping = TFlt(int(100000*(-7*(Ss.GetFlt(1)-13) + 29*(Ss.GetFlt(2)-40))));
 		TPair< TFlt, TFlt> mapping;
 		mapping.Val1 = Ss.GetFlt(1);
+		// if(mapping.Val1 > 17.7947 && mapping.Val1 < 17.7969)
+		// {
+		// 	cout << Ss.GetFld(0) << "\n";
+		// }
 		mapping.Val2 = Ss.GetFlt(2);
-
 		towerLoc.AddDat(Ss.GetFld(0), mapping);
-	//	TPair<TFlt,TFlt> temp;
-	//	temp.Val1 = Ss.GetFlt(1);
-	//	temp.Val2 = Ss.GetFlt(2);
-	//	locToTower.AddDat(mapping, temp);
 	}
 
 	//Add all nodes (towers) to graph
 	PUNGraph G = TUNGraph::New();
-	towerLoc.SortByDat(); //Sorts towers
+	//towerLoc.SortByDat(); //Sorts towers
 	THash<TStr, TPair< TFlt, TFlt> >::TIter NI = towerLoc.BegI();
 	TInt towerCount = 0;
 	while(!NI.IsEnd())
@@ -64,8 +59,8 @@ int main(int argc, const char * argv[])
 		{
 			G->AddNode(towerCount);
 			towerNumber.AddDat(tow, towerCount);
-			towerCount++;
 			idToLoc.AddDat(towerCount, tow);
+			towerCount++;
 		}
 
 		//if(!G->IsNode(tow))
@@ -77,6 +72,11 @@ int main(int argc, const char * argv[])
 		NI.Next();
 	}
 
+	TInt temperature = towerNumber.GetDat(towerLoc.GetDat("421022B16C795"));
+	TFlt temperature2 = towerLoc.GetDat("421022B16C795").GetVal1();
+	//cout << temperature << ", " << temperature2 << ", " << idToLoc(1118).GetVal1() << "\n";
+
+	int totaledges = 0;
 	//For each node, find closest towers and add an edge:
 	for (TUNGraph::TNodeI NI = G->BegNI(); NI < G->EndNI(); NI++) 
 	{
@@ -105,13 +105,38 @@ int main(int argc, const char * argv[])
 		while(numneighs < 5)
 		{
 			//cout << NI.GetId() << ", " << closestNeighs.GetKey() << ", " << closestNeighs.GetDat() << "\n";
-			G->AddEdge(NI.GetId(), closestNeighs.GetDat());
+			//G->AddEdge(NI.GetId(), closestNeighs.GetDat());
+			if(!G->IsEdge(NI.GetId(), closestNeighs.GetDat()))
+			{
+				G->AddEdge(NI.GetId(), closestNeighs.GetDat());
+			}
+				totaledges++;
 			numneighs++;
 			closestNeighs.Next();
 		}
 		IAssert(G->IsOk());
 		//printf("node id %d with degree %d\n", NI.GetId(), NI.GetDeg());
+
+		// if(NI.GetId() == 1118)
+		// //if(lat1 > 17.7957 && lat1 < 17.7959)
+		// //if(lat1 > 17.7947 && lat1 < 17.7969)
+		// {
+		// 	cout << "FOUND IT: " << NI.GetId() << ": " << lat1 <<  "\n";
+		// 	THash<TFlt, TFlt>::TIter closestNeighs2 = distances.BegI();
+		// 	int numneighs = 0;
+		// 	while(numneighs < 10)
+		// 	{
+		// 		cout << NI.GetId() << ", " << closestNeighs2.GetKey() << ", " << closestNeighs2.GetDat() << "\n";
+		// 		numneighs++;
+		// 		closestNeighs2.Next();
+		// 	}
+		// }
+
+
   	}
+
+	cout << TSnap::GetTriads(G) << "\n";
+	cout << TSnap::GetClustCf(G) << "\n";
 
 
   	//Now, build matrix of phone calls
@@ -223,12 +248,39 @@ int main(int argc, const char * argv[])
 	}
 
 	//Remove nodes with no edges
+	int numCounter [10];
+	memset( numCounter, 0, 15*sizeof(int) );
 	for (TUNGraph::TNodeI NI = G->BegNI(); NI < G->EndNI(); NI++) 
 	{
-		printf("node id %d with degree %d\n", NI.GetId(), NI.GetDeg());
+		if(NI.GetDeg() == 9)
+		{
+			//cout << NI.GetId() << "= NODE ID" << "\n";
+			int countcount = 0;
+			for(int j = 0; j < NI.GetDeg(); j++)
+			{
+				if(G->GetNI(NI.GetOutNId(j)).GetDeg() == 9)
+					//cout << NI.GetOutNId(j) << "\n";
+					countcount++;
+			}
+			if(countcount == 0)
+			{
+				countcount = 0;
+				for(int j = 0; j < NI.GetDeg(); j++)
+				{
+					if(G->GetNI(NI.GetOutNId(j)).GetDeg() == 8)
+						countcount++;
+				}
+				numCounter[countcount]++;
+				//if (countcount == 1)
+				//	cout << NI.GetId() << "\n";
+			}
+		}
+		//numCounter[NI.GetDeg()]++;
 	}
-
-	cout << towerCount << "\n";
+	for(int j = 0; j<10; j++)
+	{
+		//cout << numCounter[j] << "\n";
+	}
 
 
 
@@ -239,11 +291,9 @@ int main(int argc, const char * argv[])
 		//printf("edge (%d, %d) \n", EI.GetSrcNId(), EI.GetDstNId());
 	}
 	cout << countt << "\n";
+	cout << totaledges << "\n";
 
-
-
-
-
+	//cout << idToLoc(584).GetVal1() << ", " << idToLoc(1115).GetVal1() << "\n";
 
 }
 

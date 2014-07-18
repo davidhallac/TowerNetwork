@@ -173,12 +173,38 @@ int main(int argc, const char * argv[])
 		var1 = var1/(height - 1);
 		var2 = var2/(height - 1);
 		sampleCov = sampleCov / (height - 1);
-		//cout << var1 << ", " << var2 << ", " << sampleCov << ", " << mean1 << ", " << mean2 << ", " << id1 << ", " << id2 << "\n";
 		sampleCov = sampleCov / (var1*var2+0.001);
-
 		TFlt weight = max(sampleCov, TFlt(0));
+		TVec<TInt> edgeNodes;
+		edgeNodes.Add(id1);
+		edgeNodes.Add(id2);
+		edgeWeights.AddDat(edgeNodes, weight);
 
 		printf("edge (%d, %d) with edge weight %f. Cov %f\n", EI.GetSrcNId(), EI.GetDstNId(), weight, sampleCov);
+	}
+
+
+	 //Remove edges with 0 weight
+	for (TUNGraph::TNodeI NI = G->BegNI(); NI < G->EndNI(); NI++) 
+	{
+		int temp = NI.GetDeg();
+		for(int j = 0; j < temp; j++)
+		{
+			TVec<TInt> temp;
+			temp.Add(NI.GetId());
+			temp.Add(NI.GetOutNId(0));
+			TFlt weight = edgeWeights.GetDat(temp); //TODO: SOLVE THIS
+			if(int(weight) == 0)
+			{
+				G->DelEdge(NI.GetId(), NI.GetOutNId(0) );
+			}
+		}
+	}
+
+
+	for (TUNGraph::TNodeI NI = G->BegNI(); NI < G->EndNI(); NI++) 
+	{
+		printf("node id %d with degree %d\n", NI.GetId(), NI.GetDeg());
 	}
 
 
@@ -191,50 +217,6 @@ int main(int argc, const char * argv[])
 
 
 
-
-
-
-
-
-	// int adjA2 [numtowers];
-	// memset( adjA2, 0, numtowers*sizeof(int) );
-	// for (int i = 0; i < height; ++i)
-	// {
-	// 	for (int j = 0; j < numtowers; ++j)
-	// 	{
-	// 		adjA2[j] += a[i][j];
-	// 	}
-	// }
-
-	// for (int j = 0; j < numtowers; ++j)
-	// {
-	// 	std::cout << adjA2[j] << ' ';	
-	// }
-	// cout << "\n";
-
-	// cout << PhoneLoad.Len() << "\n";
-	// for (int i=0; i < PhoneLoad.Len(); i++) 
-	// {
-	// 		TFlt sourceTow = towerLoc.GetDat(PhoneLoad[i].getLocSrc().CStr()); 
-	// 		TFlt destTow = towerLoc.GetDat(PhoneLoad[i].getLocDest().CStr());		
-	// 		if (sourceTow > 1 || sourceTow < -1)
-	// 		{
-	// 		//	cout << PhoneLoad[i].getLocSrc().CStr() << ", " << towerLoc.GetDat(PhoneLoad[i].getLocSrc()) << ", " << towerNumber.GetDat(towerLoc.GetDat(PhoneLoad[i].getLocSrc())) <<  "\n";
-	// 		}
-	// 		if (destTow > 1 || destTow < -1)
-	// 		{
-	// 			TFlt temperature = towerLoc.GetDat(PhoneLoad[i].getLocDest());
-	// 			cout << PhoneLoad[i].getLocDest().CStr() << ", " << temperature << ", " << towerNumber.GetDat(temperature) <<  "\n";
-	// 		}
-	// }
-
-	// cout << adjA2[0] << "\n";
-	// THash<TFlt, TInt>::TIter NI3 = towerNumber.BegI();
-	// while(!NI3.IsEnd())
-	// {
-	// 	//cout << NI3.GetKey() << ", " << NI3.GetDat() << "\n";
-	// 	NI3.Next();
-	// }
 
 }
 

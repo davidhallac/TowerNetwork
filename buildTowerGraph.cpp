@@ -206,6 +206,9 @@ int main(int argc, const char * argv[])
 				//cout << "KEEPING: " << NI.GetId() << ", " << NI.GetOutNId(0) << "\n";
 			}
 		}
+			for (TUNGraph::TEdgeI EI = G->BegEI(); EI < G->EndEI(); EI++) {
+		printf("edge (%d, %d)\n", EI.GetSrcNId(), EI.GetDstNId());
+	}
 
 		printf("node id %d with degree %d\n", NI.GetId(), NI.GetDeg());
 	}
@@ -216,6 +219,9 @@ int main(int argc, const char * argv[])
 		//printf("node id %d with degree %d\n", NI.GetId(), NI.GetDeg());
 	}
 
+	for (TUNGraph::TEdgeI EI = G->BegEI(); EI < G->EndEI(); EI++) {
+		//printf("edge (%d, %d)\n", EI.GetSrcNId(), EI.GetDstNId());
+	}
 
 
 

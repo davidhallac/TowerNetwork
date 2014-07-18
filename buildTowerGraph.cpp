@@ -193,7 +193,7 @@ int main(int argc, const char * argv[])
 		int tempCounter = 0;
 		for(int j = 0; j < temp; j++)
 		{
-			TUInt temp = NI.GetId() + 10*NI.GetOutNId(tempCounter);
+			TUInt temp = min(NI.GetId(),NI.GetOutNId(tempCounter)) + 10*max(NI.GetId(), NI.GetOutNId(tempCounter));
 			TFlt weight = edgeWeights.GetDat(temp); //TODO: SOLVE THIS
 			//cout << temp << ", " << weight << "\n";
 			if(double(weight) <= 0.00001)
@@ -203,25 +203,16 @@ int main(int argc, const char * argv[])
 			else
 			{
 				tempCounter++;
-				//cout << "KEEPING: " << NI.GetId() << ", " << NI.GetOutNId(0) << "\n";
 			}
 		}
-			for (TUNGraph::TEdgeI EI = G->BegEI(); EI < G->EndEI(); EI++) {
-		printf("edge (%d, %d)\n", EI.GetSrcNId(), EI.GetDstNId());
-	}
-
-		printf("node id %d with degree %d\n", NI.GetId(), NI.GetDeg());
 	}
 
 
 	for (TUNGraph::TNodeI NI = G->BegNI(); NI < G->EndNI(); NI++) 
 	{
-		//printf("node id %d with degree %d\n", NI.GetId(), NI.GetDeg());
+		printf("node id %d with degree %d\n", NI.GetId(), NI.GetDeg());
 	}
 
-	for (TUNGraph::TEdgeI EI = G->BegEI(); EI < G->EndEI(); EI++) {
-		//printf("edge (%d, %d)\n", EI.GetSrcNId(), EI.GetDstNId());
-	}
 
 
 

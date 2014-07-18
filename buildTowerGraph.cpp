@@ -175,10 +175,10 @@ int main(int argc, const char * argv[])
 		sampleCov = sampleCov / (height - 1);
 		sampleCov = sampleCov / (var1*var2+0.001);
 		TFlt weight = max(sampleCov, TFlt(0));
-		edgeWeights.AddDat(TUInt(EI.GetSrcNId() + 10*EI.GetDstNId()), weight);
-		TUInt temporary = EI.GetSrcNId() + 10*EI.GetDstNId();
-		//cout << temporary << ", " << weight << "\n";
-		if(TUInt(id1 + 10*id2) == 389246226)
+		TUInt temp = EI.GetSrcNId() + 10*EI.GetDstNId();
+		edgeWeights.AddDat(temp, weight);
+		cout << temp << ", " << weight << "\n";
+		if(temp == 389246226)
 		{
 			cout << edgeWeights.GetDat(TUInt(389246226)) << "\n";
 		}

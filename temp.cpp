@@ -135,9 +135,6 @@ int main(int argc, const char * argv[])
 
   	}
 
-	cout << TSnap::GetTriads(G) << "\n";
-	cout << TSnap::GetClustCf(G) << "\n";
-
 
   	//Now, build matrix of phone calls
 	int numtowers = towerCount;
@@ -291,7 +288,8 @@ int main(int argc, const char * argv[])
 		//printf("edge (%d, %d) \n", EI.GetSrcNId(), EI.GetDstNId());
 	}
 	cout << countt << "\n";
-	cout << totaledges << "\n";
+	cout << TSnap::GetTriads(G) << "\n";
+	cout << TSnap::GetClustCf(G) << "\n";
 
 	//cout << idToLoc(584).GetVal1() << ", " << idToLoc(1115).GetVal1() << "\n";
 

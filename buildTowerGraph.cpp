@@ -176,7 +176,8 @@ int main(int argc, const char * argv[])
 		sampleCov = sampleCov / (var1*var2+0.001);
 		TFlt weight = max(sampleCov, TFlt(0));
 		edgeWeights.AddDat(TUInt(id1 + 10*id2), weight);
-
+		TUInt temporary = EI.GetSrcNId() + 10*EI.GetDstNId();
+		cout << temporary << ", " << weight << "\n";
 		printf("edge (%d, %d) with edge weight %f. Cov %f\n", EI.GetSrcNId(), EI.GetDstNId(), weight, sampleCov);
 	}
 
@@ -200,7 +201,7 @@ int main(int argc, const char * argv[])
 
 	for (TUNGraph::TNodeI NI = G->BegNI(); NI < G->EndNI(); NI++) 
 	{
-		printf("node id %d with degree %d\n", NI.GetId(), NI.GetDeg());
+		//printf("node id %d with degree %d\n", NI.GetId(), NI.GetDeg());
 	}
 
 

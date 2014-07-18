@@ -210,14 +210,28 @@ int main(int argc, const char * argv[])
 		}
 	}
 
-
-
+	//Remove nodes with no neighbors (most likely because there are no calls)
 	for (TUNGraph::TNodeI NI = G->BegNI(); NI < G->EndNI(); NI++) 
 	{
+		if(NI.GetDeg() == 0)
+		{
+			G->DelNode(NI.GetId());
+		}
+	}
+
+
+
+
+
+
+	int nodecounter = 0;
+	int edgecounter = 0;
+	for (TUNGraph::TNodeI NI = G->BegNI(); NI < G->EndNI(); NI++) 
+	{
+		nodecounter++;
 		//printf("node id %d with degree %d\n", NI.GetId(), NI.GetDeg());
 	}
 
-	int edgecounter = 0;
 	for (TUNGraph::TEdgeI EI = G->BegEI(); EI < G->EndEI(); EI++) 
 	{
 		edgecounter++;
@@ -226,7 +240,7 @@ int main(int argc, const char * argv[])
 		temp.Val2 = EI.GetDstNId();
 		//printf("edge (%d, %d) with edge weight %f\n", EI.GetSrcNId(), EI.GetDstNId(), edgeWeights.GetDat(temp));
 	}
-	cout << edgecounter << "\n";
+	cout << "Nodes: " << nodecounter << ", Edges: " << edgecounter << "\n";
 
 }
 

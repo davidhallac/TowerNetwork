@@ -33,15 +33,15 @@ int main(int argc, const char * argv[])
 	//Get Tower Information from CSV File
 	THash<TStr, TFlt> towerLoc; //Map ID --> Lat + 33*Long (unique hash)
 	THash<TFlt, TInt> towerNumber; //Helper that maps towers to an in-order ID (0 to ~1100)
-	THash<TFlt, TVec<TFlt> > locToTower;
+	THash<TFlt, TPair< TFlt, TFlt> > locToTower;
 	TSsParser Ss("LocationTowers.csv", ssfCommaSep);
 	while(Ss.Next())
 	{
 		TFlt mapping = TFlt(int(100000*(-7*(Ss.GetFlt(1)-13) + 29*(Ss.GetFlt(2)-40))));
 		towerLoc.AddDat(Ss.GetFld(0), mapping);
-		TVec<TFlt> temp;
-		temp.Add(Ss.GetFlt(1));
-		temp.Add(Ss.GetFlt(2));
+		TPair<TFlt,TFlt> temp;
+		temp.Val1 = Ss.GetFlt(1);
+		temp.Val2 = Ss.GetFlt(2);
 		locToTower.AddDat(mapping, temp);
 	}
 
@@ -61,20 +61,20 @@ int main(int argc, const char * argv[])
 		}
 		NI.Next();
 	}
-	cout << towerCount << "\n";
+
 	//For each node, find closest towers and add an edge:
 	for (TUNGraph::TNodeI NI = G->BegNI(); NI < G->EndNI(); NI++) 
 	{
 		THash<TFlt, TFlt> distances;
-		TFlt lat1 = locToTower.GetDat(NI.GetId())[0];
-		TFlt lon1 = locToTower.GetDat(NI.GetId())[1];		
+		TFlt lat1 = locToTower.GetDat(NI.GetId()).GetVal1();
+		TFlt lon1 = locToTower.GetDat(NI.GetId()).GetVal2();		
 		for (TUNGraph::TNodeI NI2 = G->BegNI(); NI2 < G->EndNI(); NI2++) 
 		{
 			if(NI.GetId() != NI2.GetId())
 			{
 				//Find distances
-				TFlt lat2 = locToTower.GetDat(NI2.GetId())[0];
-				TFlt lon2 = locToTower.GetDat(NI2.GetId())[1];	
+				TFlt lat2 = locToTower.GetDat(NI2.GetId()).GetVal1();
+				TFlt lon2 = locToTower.GetDat(NI2.GetId()).GetVal2();	
 				TFlt theta = lon1 - lon2;
 				TFlt dist = sin(lat1*pi/180)*sin(lat2*pi/180) + cos(lat1*pi/180)*cos(lat2*pi/180)*cos(theta*pi/180);
 				dist = acos(dist);
@@ -210,9 +210,10 @@ int main(int argc, const char * argv[])
 	//Remove nodes with no edges
 	for (TUNGraph::TNodeI NI = G->BegNI(); NI < G->EndNI(); NI++) 
 	{
-		//printf("node id %d with degree %d\n", NI.GetId(), NI.GetDeg());
+		printf("node id %d with degree %d\n", NI.GetId(), NI.GetDeg());
 	}
 
+	cout << towerCount << "\n";
 
 
 

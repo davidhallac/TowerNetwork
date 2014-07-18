@@ -31,34 +31,49 @@ int main(int argc, const char * argv[])
 	PhoneLoad.Load(fin);
 
 	//Get Tower Information from CSV File
-	THash<TStr, TFlt> towerLoc; //Map ID --> Lat + 33*Long (unique hash)
-	THash<TFlt, TInt> towerNumber; //Helper that maps towers to an in-order ID (0 to ~1100)
-	THash<TFlt, TPair< TFlt, TFlt> > locToTower;
+	//THash<TStr, TFlt> towerLoc; //Map ID --> Lat + 33*Long (unique hash)
+	//THash<TFlt, TInt> towerNumber; //Helper that maps towers to an in-order ID (0 to ~1100)
+	THash<TStr, TPair< TFlt, TFlt> > towerLoc;
+	THash<TPair< TFlt, TFlt>, TInt> towerNumber;
+	THash<TInt, TPair< TFlt, TFlt> > idToLoc;
+	//THash<TFlt, TPair< TFlt, TFlt> > locToTower;
 	TSsParser Ss("LocationTowers.csv", ssfCommaSep);
 	while(Ss.Next())
 	{
-		TFlt mapping = TFlt(int(100000*(-7*(Ss.GetFlt(1)-13) + 29*(Ss.GetFlt(2)-40))));
+		//TFlt mapping = TFlt(int(100000*(-7*(Ss.GetFlt(1)-13) + 29*(Ss.GetFlt(2)-40))));
+		TPair< TFlt, TFlt> mapping;
+		mapping.Val1 = Ss.GetFlt(1);
+		mapping.Val2 = Ss.GetFlt(2);
+
 		towerLoc.AddDat(Ss.GetFld(0), mapping);
-		TPair<TFlt,TFlt> temp;
-		temp.Val1 = Ss.GetFlt(1);
-		temp.Val2 = Ss.GetFlt(2);
-		locToTower.AddDat(mapping, temp);
+	//	TPair<TFlt,TFlt> temp;
+	//	temp.Val1 = Ss.GetFlt(1);
+	//	temp.Val2 = Ss.GetFlt(2);
+	//	locToTower.AddDat(mapping, temp);
 	}
 
 	//Add all nodes (towers) to graph
 	PUNGraph G = TUNGraph::New();
 	towerLoc.SortByDat(); //Sorts towers
-	THash<TStr, TFlt>::TIter NI = towerLoc.BegI();
+	THash<TStr, TPair< TFlt, TFlt> >::TIter NI = towerLoc.BegI();
 	TInt towerCount = 0;
 	while(!NI.IsEnd())
 	{
-		TFlt tow = NI.GetDat();
-		if(!G->IsNode(tow))
+		TPair< TFlt, TFlt> tow = NI.GetDat();
+		if(!towerNumber.IsKey(tow))
 		{
-			G->AddNode(tow);
+			G->AddNode(towerCount);
 			towerNumber.AddDat(tow, towerCount);
 			towerCount++;
+			idToLoc.AddDat(towerCount, tow);
 		}
+
+		//if(!G->IsNode(tow))
+		// {
+		// 	G->AddNode(tow);
+		// 	towerNumber.AddDat(tow, towerCount);
+		// 	towerCount++;
+		// }
 		NI.Next();
 	}
 
@@ -66,15 +81,15 @@ int main(int argc, const char * argv[])
 	for (TUNGraph::TNodeI NI = G->BegNI(); NI < G->EndNI(); NI++) 
 	{
 		THash<TFlt, TFlt> distances;
-		TFlt lat1 = locToTower.GetDat(NI.GetId()).GetVal1();
-		TFlt lon1 = locToTower.GetDat(NI.GetId()).GetVal2();		
+		TFlt lat1 = idToLoc.GetDat(NI.GetId()).GetVal1();
+		TFlt lon1 = idToLoc.GetDat(NI.GetId()).GetVal2();		
 		for (TUNGraph::TNodeI NI2 = G->BegNI(); NI2 < G->EndNI(); NI2++) 
 		{
 			if(NI.GetId() != NI2.GetId())
 			{
 				//Find distances
-				TFlt lat2 = locToTower.GetDat(NI2.GetId()).GetVal1();
-				TFlt lon2 = locToTower.GetDat(NI2.GetId()).GetVal2();	
+				TFlt lat2 = idToLoc.GetDat(NI2.GetId()).GetVal1();
+				TFlt lon2 = idToLoc.GetDat(NI2.GetId()).GetVal2();	
 				TFlt theta = lon1 - lon2;
 				TFlt dist = sin(lat1*pi/180)*sin(lat2*pi/180) + cos(lat1*pi/180)*cos(lat2*pi/180)*cos(theta*pi/180);
 				dist = acos(dist);
@@ -110,15 +125,15 @@ int main(int argc, const char * argv[])
 		if(PhoneLoad[i].getDuration() > 1)
 		{
 			
-			TFlt sourceTow = towerLoc.GetDat(PhoneLoad[i].getLocSrc().CStr()); 
-			TFlt destTow = towerLoc.GetDat(PhoneLoad[i].getLocDest().CStr());
+			TPair< TFlt, TFlt> sourceTow = towerLoc.GetDat(PhoneLoad[i].getLocSrc().CStr()); 
+			TPair< TFlt, TFlt> destTow = towerLoc.GetDat(PhoneLoad[i].getLocDest().CStr());
 			
-			if (sourceTow > 1 || sourceTow < -1)
+			if (sourceTow.GetVal1() > 1 || sourceTow.GetVal1() < -1)
 			{
 				a[PhoneLoad[i].getTime()/10000*4 + (PhoneLoad[i].getTime()%10000)/1500][towerNumber.GetDat(sourceTow)]++;
 
 			}
-			if (destTow > 1 || destTow < -1)
+			if (destTow.GetVal1() > 1 || destTow.GetVal1() < -1)
 			{
 				a[PhoneLoad[i].getTime()/10000*4 + (PhoneLoad[i].getTime()%10000)/1500][towerNumber.GetDat(destTow)]++;
 			}
@@ -149,8 +164,8 @@ int main(int argc, const char * argv[])
 	for (TUNGraph::TEdgeI EI = G->BegEI(); EI < G->EndEI(); EI++) 
 	{
 		//Find sample covariance between two vectors
-		TInt id1 = towerNumber.GetDat(EI.GetSrcNId());
-		TInt id2 = towerNumber.GetDat(EI.GetDstNId());
+		TInt id1 = EI.GetSrcNId();//towerNumber.GetDat(EI.GetSrcNId());
+		TInt id2 = EI.GetDstNId();//towerNumber.GetDat(EI.GetDstNId());
 		TFlt mean1 = 0;
 		TFlt mean2 = 0;
 		for (int i = 0; i < height; ++i)
@@ -216,6 +231,7 @@ int main(int argc, const char * argv[])
 	cout << towerCount << "\n";
 
 
+
 	int countt = 0;
 	for (TUNGraph::TEdgeI EI = G->BegEI(); EI < G->EndEI(); EI++) 
 	{
@@ -223,8 +239,6 @@ int main(int argc, const char * argv[])
 		//printf("edge (%d, %d) \n", EI.GetSrcNId(), EI.GetDstNId());
 	}
 	cout << countt << "\n";
-
-
 
 
 

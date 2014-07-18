@@ -2,10 +2,13 @@
 # Makefile for non-Microsoft compilers
 #
 
-all: buildTowerGraph
+all: buildTowerGraph temp
 
 buildTowerGraph: buildTowerGraph.cpp $(DEPH) $(DEPCPP) $(EXSNAP)/Snap.o
 		$(CC) $(CXXFLAGS) -o buildTowerGraph buildTowerGraph.cpp $(DEPCPP) $(EXSNAP)/Snap.o -I$(EXSNAP) -I$(EXSNAPADV) -I$(EXGLIB) -I$(EXSNAPEXP) $(LDFLAGS) $(LIBS)
+
+temp: temp.cpp $(DEPH) $(DEPCPP) $(EXSNAP)/Snap.o
+		$(CC) $(CXXFLAGS) -o temp temp.cpp $(DEPCPP) $(EXSNAP)/Snap.o -I$(EXSNAP) -I$(EXSNAPADV) -I$(EXGLIB) -I$(EXSNAPEXP) $(LDFLAGS) $(LIBS)
 
 $(EXSNAP)/Snap.o: 
 		make -C $(EXSNAP)

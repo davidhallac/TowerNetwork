@@ -249,7 +249,7 @@ int main(int argc, const char * argv[])
 
 	//Remove nodes with no edges
 	int numCounter [10];
-	memset( numCounter, 0, 15*sizeof(int) );
+	memset( numCounter, 0, 10*sizeof(int) );
 	for (TUNGraph::TNodeI NI = G->BegNI(); NI < G->EndNI(); NI++) 
 	{
 		if(NI.GetDeg() == 9)

@@ -187,7 +187,7 @@ int main(int argc, const char * argv[])
 		int temp = NI.GetDeg();
 		for(int j = 0; j < temp; j++)
 		{
-			TUInt temp = NI.GetId() + 10*NI.GetOutNId(0)*100;
+			TUInt temp = NI.GetId() + 10*NI.GetOutNId(0);
 			TFlt weight = edgeWeights.GetDat(temp); //TODO: SOLVE THIS
 			cout << NI.GetId() << ", " << NI.GetOutNId(0) << ", " << temp << ", " << weight << "\n";
 			if(double(weight) <= 0.00001)

@@ -177,7 +177,7 @@ int main(int argc, const char * argv[])
 		TFlt weight = max(sampleCov, TFlt(0));
 		TUInt temp = EI.GetSrcNId() + 10*EI.GetDstNId();
 		edgeWeights.AddDat(temp, weight);
-		cout << temp << ", " << weight << "\n";
+		//cout << temp << ", " << weight << "\n";
 		if(temp == 389246226)
 		{
 			cout << edgeWeights.GetDat(TUInt(389246226)) << "\n";
@@ -190,22 +190,30 @@ int main(int argc, const char * argv[])
 	for (TUNGraph::TNodeI NI = G->BegNI(); NI < G->EndNI(); NI++) 
 	{
 		int temp = NI.GetDeg();
+		int tempCounter = 0;
 		for(int j = 0; j < temp; j++)
 		{
-			TUInt temp = NI.GetId() + 10*NI.GetOutNId(0);
+			TUInt temp = NI.GetId() + 10*NI.GetOutNId(tempCounter);
 			TFlt weight = edgeWeights.GetDat(temp); //TODO: SOLVE THIS
-			cout << temp << ", " << weight << "\n";
+			//cout << temp << ", " << weight << "\n";
 			if(double(weight) <= 0.00001)
 			{
-				G->DelEdge(NI.GetId(), NI.GetOutNId(0) );
+				G->DelEdge(NI.GetId(), NI.GetOutNId(tempCounter) );
+			}
+			else
+			{
+				tempCounter++;
+				//cout << "KEEPING: " << NI.GetId() << ", " << NI.GetOutNId(0) << "\n";
 			}
 		}
+
+		printf("node id %d with degree %d\n", NI.GetId(), NI.GetDeg());
 	}
 
 
 	for (TUNGraph::TNodeI NI = G->BegNI(); NI < G->EndNI(); NI++) 
 	{
-		printf("node id %d with degree %d\n", NI.GetId(), NI.GetDeg());
+		//printf("node id %d with degree %d\n", NI.GetId(), NI.GetDeg());
 	}
 
 

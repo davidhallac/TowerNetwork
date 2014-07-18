@@ -194,7 +194,7 @@ int main(int argc, const char * argv[])
 			temp.Add(NI.GetId());
 			temp.Add(NI.GetOutNId(0));
 			TFlt weight = edgeWeights.GetDat(temp); //TODO: SOLVE THIS
-			if(int(weight) == 0)
+			if(double(weight) <= 0.00001)
 			{
 				G->DelEdge(NI.GetId(), NI.GetOutNId(0) );
 			}

@@ -45,6 +45,7 @@ int main(int argc, const char * argv[])
 
 	//Add all nodes (towers) to graph
 	PUNGraph G = TUNGraph::New();
+	towerLoc.SortByDat();
 	THash<TStr, TPair< TFlt, TFlt> >::TIter NI = towerLoc.BegI();
 	TInt towerCount = 0;
 	while(!NI.IsEnd())
@@ -172,28 +173,32 @@ int main(int argc, const char * argv[])
 		var1 = var1/(height - 1);
 		var2 = var2/(height - 1);
 		sampleCov = sampleCov / (height - 1);
-		sampleCov = sampleCov / (var1*var2+0.001);
+		sampleCov = sampleCov / (sqrt(var1)*sqrt(var2)+0.00000001);
 		TFlt weight = max(sampleCov, TFlt(0));
+
 		TPair< TInt, TInt> temp;
 		temp.Val1 = EI.GetSrcNId();
 		temp.Val2 = EI.GetDstNId();
 		edgeWeights.AddDat(temp, weight);
-		//printf("edge (%d, %d) with edge weight %f. Cov %f\n", EI.GetSrcNId(), EI.GetDstNId(), weight, sampleCov);
+
+		if(double(weight) > 0.00001)
+		{
+			//printf("edge (%d, %d) with edge weight %f. Cov %f\n", EI.GetSrcNId(), EI.GetDstNId(), weight, sampleCov);
+		}
 	}
 
 
 	 //Remove edges with 0 weight
 	for (TUNGraph::TNodeI NI = G->BegNI(); NI < G->EndNI(); NI++) 
 	{
-		int temp = NI.GetDeg();
+		int nodeDeg = NI.GetDeg();
 		int tempCounter = 0;
-		for(int j = 0; j < temp; j++)
+		for(int j = 0; j < nodeDeg; j++)
 		{
 			TPair< TInt, TInt> temp;
 			temp.Val1 = min(NI.GetId(),NI.GetOutNId(tempCounter));
 			temp.Val2 = max(NI.GetId(), NI.GetOutNId(tempCounter));
 			TFlt weight = edgeWeights.GetDat(temp);
-			//cout << temp << ", " << weight << "\n";
 			if(double(weight) <= 0.00001)
 			{
 				G->DelEdge(NI.GetId(), NI.GetOutNId(tempCounter) );
@@ -206,11 +211,22 @@ int main(int argc, const char * argv[])
 	}
 
 
+
+	for (TUNGraph::TNodeI NI = G->BegNI(); NI < G->EndNI(); NI++) 
+	{
+		//printf("node id %d with degree %d\n", NI.GetId(), NI.GetDeg());
+	}
+
+	int edgecounter = 0;
 	for (TUNGraph::TEdgeI EI = G->BegEI(); EI < G->EndEI(); EI++) 
 	{
-		//printf("edge (%d, %d) \n", EI.GetSrcNId(), EI.GetDstNId());
+		edgecounter++;
+		TPair< TInt, TInt> temp;
+		temp.Val1 = EI.GetSrcNId();
+		temp.Val2 = EI.GetDstNId();
+		//printf("edge (%d, %d) with edge weight %f\n", EI.GetSrcNId(), EI.GetDstNId(), edgeWeights.GetDat(temp));
 	}
-	
+	cout << edgecounter << "\n";
 
 }
 

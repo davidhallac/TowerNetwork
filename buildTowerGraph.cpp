@@ -205,7 +205,7 @@ int main(int argc, const char * argv[])
 
 	for (TUNGraph::TNodeI NI = G->BegNI(); NI < G->EndNI(); NI++) 
 	{
-		//printf("node id %d with degree %d\n", NI.GetId(), NI.GetDeg());
+		printf("node id %d with degree %d\n", NI.GetId(), NI.GetDeg());
 	}
 
 

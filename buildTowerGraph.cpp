@@ -194,7 +194,7 @@ int main(int argc, const char * argv[])
 		{
 			TUInt temp = NI.GetId() + 10*NI.GetOutNId(0);
 			TFlt weight = edgeWeights.GetDat(temp); //TODO: SOLVE THIS
-			//cout << temp << ", " << edgeWeights << "\n";
+			cout << temp << ", " << weight << "\n";
 			if(double(weight) <= 0.00001)
 			{
 				G->DelEdge(NI.GetId(), NI.GetOutNId(0) );
@@ -205,7 +205,7 @@ int main(int argc, const char * argv[])
 
 	for (TUNGraph::TNodeI NI = G->BegNI(); NI < G->EndNI(); NI++) 
 	{
-		printf("node id %d with degree %d\n", NI.GetId(), NI.GetDeg());
+		//printf("node id %d with degree %d\n", NI.GetId(), NI.GetDeg());
 	}
 
 

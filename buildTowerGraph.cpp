@@ -145,7 +145,7 @@ int main(int argc, const char * argv[])
 	}
 
 	//Set each edge weight to a covariance matrix
-	THash< TVec< TInt>, TFlt> edgeWeights;
+	THash< TInt, TFlt> edgeWeights; //edge1 + 10*edge2
 	for (TUNGraph::TEdgeI EI = G->BegEI(); EI < G->EndEI(); EI++) 
 	{
 		//Find sample covariance between two vectors
@@ -175,10 +175,7 @@ int main(int argc, const char * argv[])
 		sampleCov = sampleCov / (height - 1);
 		sampleCov = sampleCov / (var1*var2+0.001);
 		TFlt weight = max(sampleCov, TFlt(0));
-		TVec<TInt> edgeNodes;
-		edgeNodes.Add(id1);
-		edgeNodes.Add(id2);
-		edgeWeights.AddDat(edgeNodes, weight);
+		edgeWeights.AddDat(TInt(id1 + 10*id2), weight);
 
 		printf("edge (%d, %d) with edge weight %f. Cov %f\n", EI.GetSrcNId(), EI.GetDstNId(), weight, sampleCov);
 	}
@@ -190,9 +187,7 @@ int main(int argc, const char * argv[])
 		int temp = NI.GetDeg();
 		for(int j = 0; j < temp; j++)
 		{
-			TVec<TInt> temp;
-			temp.Add(NI.GetId());
-			temp.Add(NI.GetOutNId(0));
+			TInt temp = NI.GetId() + 10*NI.GetOutNId(0);
 			TFlt weight = edgeWeights.GetDat(temp); //TODO: SOLVE THIS
 			cout << NI.GetId() << ", " << NI.GetOutNId(0) << ", " << weight << "\n";
 			if(double(weight) <= 0.00001)

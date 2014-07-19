@@ -25,10 +25,6 @@ int main(int argc, const char * argv[])
 		cout << "Not enough arguments!" << "\n";
 		return 0;
 	}
-	//Load Phone Calls
-	TVec<TPhoneCall> PhoneLoad;
-	TFIn fin(argv[1]);
-	PhoneLoad.Load(fin);
 
 	//Get Tower Information from CSV File
 	THash<TStr, TPair< TFlt, TFlt> > towerLoc;
@@ -100,9 +96,46 @@ int main(int argc, const char * argv[])
 
 
   	//Now, build matrix of phone calls
+  	int height = 96;
 	int numtowers = towerCount;
-	int a [96][numtowers];
-	memset( a, 0, 96*numtowers*sizeof(int) );
+	int aBaseline [height][numtowers];
+	memset( aBaseline, 0, height*numtowers*sizeof(int) );
+	int a [height][numtowers];
+	memset( a, 0, height*numtowers*sizeof(int) );
+	
+	//Load Phone Calls //TODO: AUTOMATE THIS TO FIND PRIOR MONTH FOR BASELINE
+	TVec<TPhoneCall> PhoneLoad;
+	TStr dateWeekBefore = argv[1];
+	TFIn fin(dateWeekBefore);
+	PhoneLoad.Load(fin);
+
+	for (int i=0; i < PhoneLoad.Len(); i++) 
+	{
+
+		//Look at calls only
+		if(PhoneLoad[i].getDuration() > 1)
+		{
+			
+			TPair< TFlt, TFlt> sourceTow = towerLoc.GetDat(PhoneLoad[i].getLocSrc().CStr()); 
+			TPair< TFlt, TFlt> destTow = towerLoc.GetDat(PhoneLoad[i].getLocDest().CStr());
+			
+			if (sourceTow.GetVal1() > 1 || sourceTow.GetVal1() < -1)
+			{
+				aBaseline[PhoneLoad[i].getTime()/10000*4 + (PhoneLoad[i].getTime()%10000)/1500][towerNumber.GetDat(sourceTow)]++;
+
+			}
+			if (destTow.GetVal1() > 1 || destTow.GetVal1() < -1)
+			{
+				aBaseline[PhoneLoad[i].getTime()/10000*4 + (PhoneLoad[i].getTime()%10000)/1500][towerNumber.GetDat(destTow)]++;
+			}
+
+		}
+	}
+
+	//Day of strike
+	TStr dateOfAttack = argv[2];
+	TFIn finActual(dateOfAttack);
+	PhoneLoad.Load(finActual);
 	for (int i=0; i < PhoneLoad.Len(); i++) 
 	{
 
@@ -126,19 +159,21 @@ int main(int argc, const char * argv[])
 		}
 	}
 
-	int height = 96;
-	double adjA [height][numtowers];
-	memset( adjA, 0, height*numtowers*sizeof(double) );
-	for (int i = 0; i < height; ++i)
+	//TODO: PROPERLY SCALE VARIABLES!!
+	//double adjA [height][numtowers];
+	//memset( adjA, 0, height*numtowers*sizeof(double) );
+	for (int j = 0; j < numtowers; ++j)
 	{
-		double sum = 0.01;
-		for (int j = 0; j < numtowers; ++j)
+		double sumBaseline = 0.00001;
+		double sumDay = 0.00001;
+		for (int i = 0; i < height; ++i)
 		{
-			sum = sum + a[i][j];
+			sumBaseline = sumBaseline + aBaseline[i][j];
+			sumDay = sumDay + a[i][j];
 		}
-		for (int j = 0; j < numtowers; j++)
+		for (int i = 0; i < height; i++)
 		{
-			adjA[i][j] = (a[i][j]*100 * numtowers)/sum;
+			a[i][j] = a[i][j] - aBaseline[i][j]*sumDay/sumBaseline;
 			//std::cout << a[i][j] << ' ';				
 		}
 		//std::cout << std::endl;
@@ -209,7 +244,7 @@ int main(int argc, const char * argv[])
 			}
 		}
 	}
-	//Remove nodes with no neighbors (most likely because there are no calls at this tower)
+	//Remove nodes with no neighbors (most likely because there are no calls at this tower. Also possible neg cov to all neighbors...)
 	for (TUNGraph::TNodeI NI = G->BegNI(); NI < G->EndNI(); NI++) 
 	{
 		if(NI.GetDeg() == 0)
@@ -217,6 +252,8 @@ int main(int argc, const char * argv[])
 			G->DelNode(NI.GetId());
 		}
 	}
+
+
 
 
 

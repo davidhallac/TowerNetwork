@@ -209,8 +209,7 @@ int main(int argc, const char * argv[])
 			}
 		}
 	}
-
-	//Remove nodes with no neighbors (most likely because there are no calls)
+	//Remove nodes with no neighbors (most likely because there are no calls at this tower)
 	for (TUNGraph::TNodeI NI = G->BegNI(); NI < G->EndNI(); NI++) 
 	{
 		if(NI.GetDeg() == 0)

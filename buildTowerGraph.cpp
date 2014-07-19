@@ -104,38 +104,42 @@ int main(int argc, const char * argv[])
 	memset( a, 0, height*numtowers*sizeof(int) );
 	
 	//Load Phone Calls //TODO: AUTOMATE THIS TO FIND PRIOR MONTH FOR BASELINE
-	TVec<TPhoneCall> PhoneLoad;
-	TStr dateWeekBefore = argv[1];
-	TFIn fin(dateWeekBefore);
-	PhoneLoad.Load(fin);
-
-	for (int i=0; i < PhoneLoad.Len(); i++) 
+	for(int j = 0; j < 4; j++)
 	{
+		TVec<TPhoneCall> PhoneLoad;
+		TStr dateWeekBefore = argv[1];
+		TFIn fin(dateWeekBefore);
+		PhoneLoad.Load(fin);
 
-		//Look at calls only
-		if(PhoneLoad[i].getDuration() > 1)
+		for (int i=0; i < PhoneLoad.Len(); i++) 
 		{
-			
-			TPair< TFlt, TFlt> sourceTow = towerLoc.GetDat(PhoneLoad[i].getLocSrc().CStr()); 
-			TPair< TFlt, TFlt> destTow = towerLoc.GetDat(PhoneLoad[i].getLocDest().CStr());
-			
-			if (sourceTow.GetVal1() > 1 || sourceTow.GetVal1() < -1)
+
+			//Look at calls only
+			if(PhoneLoad[i].getDuration() > 1)
 			{
-				aBaseline[PhoneLoad[i].getTime()/10000*4 + (PhoneLoad[i].getTime()%10000)/1500][towerNumber.GetDat(sourceTow)]++;
+				
+				TPair< TFlt, TFlt> sourceTow = towerLoc.GetDat(PhoneLoad[i].getLocSrc().CStr()); 
+				TPair< TFlt, TFlt> destTow = towerLoc.GetDat(PhoneLoad[i].getLocDest().CStr());
+				
+				if (sourceTow.GetVal1() > 1 || sourceTow.GetVal1() < -1)
+				{
+					aBaseline[PhoneLoad[i].getTime()/10000*4 + (PhoneLoad[i].getTime()%10000)/1500][towerNumber.GetDat(sourceTow)]++;
+
+				}
+				if (destTow.GetVal1() > 1 || destTow.GetVal1() < -1)
+				{
+					aBaseline[PhoneLoad[i].getTime()/10000*4 + (PhoneLoad[i].getTime()%10000)/1500][towerNumber.GetDat(destTow)]++;
+				}
 
 			}
-			if (destTow.GetVal1() > 1 || destTow.GetVal1() < -1)
-			{
-				aBaseline[PhoneLoad[i].getTime()/10000*4 + (PhoneLoad[i].getTime()%10000)/1500][towerNumber.GetDat(destTow)]++;
-			}
-
 		}
 	}
 
 	//Day of strike
+	TVec<TPhoneCall> PhoneLoad;
 	TStr dateOfAttack = argv[2];
-	TFIn finActual(dateOfAttack);
-	PhoneLoad.Load(finActual);
+	TFIn fin(dateOfAttack);
+	PhoneLoad.Load(fin);
 	for (int i=0; i < PhoneLoad.Len(); i++) 
 	{
 

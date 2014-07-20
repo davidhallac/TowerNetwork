@@ -106,8 +106,10 @@ int main(int argc, const char * argv[])
 	//Load Phone Calls //TODO: AUTOMATE THIS TO FIND PRIOR MONTH FOR BASELINE
 	for(int j = 0; j < 4; j++)
 	{
+		//Find dates 4 weeks before
+
 		TVec<TPhoneCall> PhoneLoad;
-		TStr dateWeekBefore = argv[1];
+		TStr dateWeekBefore = argv[j+1];
 		TFIn fin(dateWeekBefore);
 		PhoneLoad.Load(fin);
 
@@ -137,7 +139,7 @@ int main(int argc, const char * argv[])
 
 	//Day of strike
 	TVec<TPhoneCall> PhoneLoad;
-	TStr dateOfAttack = argv[2];
+	TStr dateOfAttack = argv[5];
 	TFIn fin(dateOfAttack);
 	PhoneLoad.Load(fin);
 	for (int i=0; i < PhoneLoad.Len(); i++) 
